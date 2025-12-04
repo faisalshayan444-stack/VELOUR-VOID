@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELOUR & VOID | Collections</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --text-main: #ffffff;
+            --bg-main: #050505;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .brand-font {
+            font-family: 'Syne', sans-serif;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1; /* Low z-index */
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .glass-nav {
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* PRODUCT CARD STYLES */
+        .product-card {
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+            cursor: pointer;
+        }
+        .image-container {
+            overflow: hidden;
+        }
+        .parallax-img {
+            transition: transform 0.6s ease;
+        }
+        .product-card:hover .parallax-img {
+            transform: scale(1.05);
+        }
+
+        /* FILTER ACTIVE STATE */
+        .filter-btn {
+            padding-right: 1rem;
+            padding-bottom: 0.5rem;
+            position: relative;
+            z-index: 2; /* Ensure filter buttons are above the background */
+        }
+        .filter-btn.active {
+            color: white;
+            opacity: 1;
+        }
+        .filter-btn.active .line {
+            transform: scaleX(1);
+        }
+        .line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: white;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: left;
+        }
+
+        /* DRAWER STYLES */
+        #product-drawer-overlay {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000; /* Extremely high z-index */
+        }
+
+        #product-drawer-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        #product-drawer {
+            transform: translateX(100%);
+            transition: transform 0.4s ease-out;
+        }
+        #product-drawer-overlay.active #product-drawer {
+            transform: translateX(0);
+        }
+        .size-button.selected {
+            background-color: white;
+            color: black;
+            border-color: white;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Noise Overlay -->
+    <div class="noise-overlay"></div>
+
+      <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 reveal-y" style="transition-delay: 0.2s;">
+                    <h1 class="text-3xl font-bold tracking-widest gradient-text">VELOUR & VOID</h1>
+                </div>
+
+                <div class="hidden md:flex space-x-8 reveal-y" style="transition-delay: 0.4s;">
+                       <a href="index.html" class="text-white/80 hover:text-white transition nav-underline">HOME</a>
+                    <a href="5.html" class="text-white/80 hover:text-white transition nav-underline">SHOP</a>
+                    <a href="products.html" class="text-white/80 hover:text-white transition nav-underline">Women</a>
+                    <a href="products.html" class="text-white/80 hover:text-white transition nav-underline">Accessories</a>
+                    <a href="products.html" class="text-red-400 hover:text-red-300 transition nav-underline">Sale</a>
+                </div>
+
+                <div class="flex items-center space-x-4 reveal-y" style="transition-delay: 0.6s;">
+                
+                   
+                   
+                    <button class="md:hidden p-2" onclick="toggleMobileMenu()">
+                        <svg id="menuIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden border-t border-white/10 bg-black/95">
+            <div class="px-4 py-4 space-y-3">
+    <a href="index.html" class="text-white/80 hover:text-white transition nav-underline">HOME</a>
+                <a href="5.html" class="block text-white/80 hover:text-white">SHOP</a>
+                <a href="products.html" class="block text-white/80 hover:text-white">Women</a>
+                <a href="products.html" class="block text-white/80 hover:text-white">Accessories</a>
+                <a href="products.html" class="block text-red-400 hover:text-red-300">Sale</a>
+            </div>
+        </div>
+    </nav>
+    
+  
+
+    <!-- Header Section -->
+    <header class="pt-40 pb-20 px-6 md:px-12 border-b border-white/10 relative z-10">
+        <div class="max-w-[1800px] mx-auto">
+            <h1 class="text-6xl md:text-9xl font-bold brand-font tracking-tighter mb-4">
+                READY TO WEAR
+            </h1>
+            <div class="flex justify-between items-end">
+                <p class="text-gray-400 text-xs md:text-sm uppercase tracking-[0.3em] max-w-md leading-relaxed">
+                    Collection 04 — Defined by brutalist silhouettes and technical fabrics. Crafted in Paris.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="relative min-h-screen">
+        <div class="flex flex-col md:flex-row">
+            
+            <!-- Sticky Filter Sidebar -->
+            <aside class="w-full md:w-64 lg:w-80 md:h-screen md:sticky md:top-0 pt-10 pb-6 px-6 md:px-12 border-b md:border-b-0 md:border-r border-white/10 z-20 bg-[#050505]">
+                <div>
+                    <h3 class="text-xs uppercase tracking-[0.2em] text-gray-500 mb-8 font-bold">Category</h3>
+                    <ul class="space-y-4 text-sm font-light text-gray-400" id="filter-list">
+                        <li>
+                            <button class="filter-btn active w-full text-left uppercase tracking-widest hover:text-white transition-colors" data-filter="all">
+                                All Items
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn w-full text-left uppercase tracking-widest hover:text-white transition-colors" data-filter="outerwear">
+                                Outerwear
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn w-full text-left uppercase tracking-widest hover:text-white transition-colors" data-filter="tailoring">
+                                Tailoring
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn w-full text-left uppercase tracking-widest hover:text-white transition-colors" data-filter="accessories">
+                                Accessories
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn w-full text-left uppercase tracking-widest hover:text-white transition-colors" data-filter="essentials">
+                                Essentials
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Product Grid -->
+            <section class="flex-1 p-6 md:p-12 z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-16" id="product-grid">
+                    
+                    <!-- Product 1 (Tailoring) -->
+                    <div class="product-card" 
+                         data-category="tailoring"
+                         data-name="The Void Blazer"
+                         data-price="850"
+                         data-sizes="S,M,L,XL"
+                         data-description="A sharply tailored single-breasted blazer cut from a technical wool blend. Features include a notched lapel, a slim fit, and concealed interior pockets. Perfect for a structured, minimalist look. Made in Italy."
+                         data-image="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="The Void Blazer">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">The Void Blazer</h2>
+                            <span class="font-mono text-sm text-gray-400">$850</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Tailoring</p>
+                    </div>
+
+                    <!-- Product 2 (Outerwear) -->
+                    <div class="product-card" 
+                         data-category="outerwear"
+                         data-name="Structured Wool Coat"
+                         data-price="1200"
+                         data-sizes="S,M,L"
+                         data-description="An architectural overcoat crafted from a heavy Italian wool blend. Features clean lines, a hidden button placket, and a high collar for maximum weather resistance and dramatic silhouette. Fully lined in silk. Ideal for layering."
+                         data-image="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Structured Wool Coat">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Structured Wool Coat</h2>
+                            <span class="font-mono text-sm text-gray-400">$1,200</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Outerwear</p>
+                    </div>
+
+                    <!-- Product 3 (Accessories) -->
+                    <div class="product-card" 
+                         data-category="accessories"
+                         data-name="Obsidian Boots"
+                         data-price="540"
+                         data-sizes="40,41,42,43,44,45"
+                         data-description="Hand-polished calfskin leather boots with a chunky, sculptural sole. Minimalist design with a discreet side zip closure. Built for durability and style, embodying industrial elegance."
+                         data-image="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Obsidian Boots">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Obsidian Boots</h2>
+                            <span class="font-mono text-sm text-gray-400">$540</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Footwear / Accessories</p>
+                    </div>
+
+                    <!-- Product 4 (Essentials) -->
+                    <div class="product-card" 
+                         data-category="essentials"
+                         data-name="Silk Noir Shirt"
+                         data-price="320"
+                         data-sizes="S,M,L,XL"
+                         data-description="A fluid, relaxed-fit shirt made from pure Italian silk. The fabric drapes beautifully, offering a subtle sheen and luxurious feel. Perfect as a base layer or worn open over a tank top. Dry clean recommended."
+                         data-image="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Silk Noir Shirt">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Silk Noir Shirt</h2>
+                            <span class="font-mono text-sm text-gray-400">$320</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Essentials</p>
+                    </div>
+                    
+                    <!-- Product 5 (Tailoring) -->
+                    <div class="product-card" 
+                         data-category="tailoring"
+                         data-name="Pleated Trousers"
+                         data-price="420"
+                         data-sizes="38,40,42"
+                         data-description="High-waisted, single-pleat trousers with a relaxed, straight leg. Made from wrinkle-resistant virgin wool. Features an adjustable inner waistband and clean hem for a perfect break. A modern staple in minimalist tailoring."
+                         data-image="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Pleated Trousers">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Pleated Trousers</h2>
+                            <span class="font-mono text-sm text-gray-400">$420</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Tailoring</p>
+                    </div>
+
+                    <!-- Product 6 (Accessories) -->
+                    <div class="product-card" 
+                         data-category="accessories"
+                         data-name="Leather Crossbody Bag"
+                         data-price="680"
+                         data-sizes="One Size"
+                         data-description="A compact, utility-focused crossbody bag made from grained Italian leather. Features a single main compartment and an adjustable technical strap. Finished with minimalist matte black hardware."
+                         data-image="https://images.unsplash.com/photo-1620799140408-ed5341cd2431?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1620799140408-ed5341cd2431?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Leather Crossbody Bag">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Leather Crossbody</h2>
+                            <span class="font-mono text-sm text-gray-400">$680</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Accessories</p>
+                    </div>
+
+                    <!-- Product 7 (Outerwear) -->
+                    <div class="product-card" 
+                         data-category="outerwear"
+                         data-name="Minimalist Trench Coat"
+                         data-price="950"
+                         data-sizes="S,M,L,XL"
+                         data-description="A refined, ankle-length trench coat in waterproof technical cotton. Features minimal hardware, an unbelted silhouette, and a clean, straight fit. An enduring piece designed to transcend seasonal trends."
+                         data-image="https://images.unsplash.com/photo-1577759882236-470204689c1b?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1577759882236-470204689c1b?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Minimalist Trench Coat">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Minimalist Trench Coat</h2>
+                            <span class="font-mono text-sm text-gray-400">$950</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Outerwear</p>
+                    </div>
+
+                    <!-- Product 8 (Tailoring) -->
+                    <div class="product-card" 
+                         data-category="tailoring"
+                         data-name="Structured Wool Vest"
+                         data-price="450"
+                         data-sizes="XS,S,M,L"
+                         data-description="A contemporary, sleeveless wool vest designed for layering. Features a clean V-neck and a slightly cropped fit. Adds structure and formality to any minimalist ensemble. Pair with the Pleated Trousers."
+                         data-image="https://images.unsplash.com/photo-1596425339243-7f311c18ef66?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1596425339243-7f311c18ef66?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Structured Wool Vest">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Structured Wool Vest</h2>
+                            <span class="font-mono text-sm text-gray-400">$450</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Tailoring</p>
+                    </div>
+
+                    <!-- Product 9 (Accessories) -->
+                    <div class="product-card" 
+                         data-category="accessories"
+                         data-name="Ribbed Cashmere Scarf"
+                         data-price="180"
+                         data-sizes="One Size"
+                         data-description="An ultra-soft, finely ribbed scarf knitted from ethically sourced Mongolian cashmere. Generously sized for versatile styling. The perfect dark accessory to complete a severe winter look."
+                         data-image="https://images.unsplash.com/photo-1574514781702-be52140a3b2b?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1574514781702-be52140a3b2b?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Ribbed Cashmere Scarf">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Ribbed Cashmere Scarf</h2>
+                            <span class="font-mono text-sm text-gray-400">$180</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Accessories</p>
+                    </div>
+
+                    <!-- Product 10 (Essentials) -->
+                    <div class="product-card" 
+                         data-category="essentials"
+                         data-name="Heavyweight Cotton Tee"
+                         data-price="120"
+                         data-sizes="S,M,L,XL"
+                         data-description="Our foundational piece: a boxy, slightly oversized t-shirt cut from 300gsm organic cotton jersey. Features a robust ribbed collar and a seamless shoulder. Built to last."
+                         data-image="https://images.unsplash.com/photo-1521572178398-eefb676ee15e?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1521572178398-eefb676ee15e?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Heavyweight Cotton Tee">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Heavyweight Cotton Tee</h2>
+                            <span class="font-mono text-sm text-gray-400">$120</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Essentials</p>
+                    </div>
+                    
+                    <!-- Product 11 (Outerwear) -->
+                    <div class="product-card" 
+                         data-category="outerwear"
+                         data-name="Oversized Nylon Bomber"
+                         data-price="780"
+                         data-sizes="S,M,L,XL"
+                         data-description="A voluminous bomber jacket cut from durable, matte nylon. Features a heavy-gauge two-way zip, ribbed cuffs and hem, and a signature utility pocket on the sleeve. Provides warmth without bulk."
+                         data-image="https://images.unsplash.com/photo-1560371661-6893707262c8?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1560371661-6893707262c8?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Oversized Nylon Bomber">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Oversized Nylon Bomber</h2>
+                            <span class="font-mono text-sm text-gray-400">$780</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Outerwear</p>
+                    </div>
+
+                    <!-- Product 12 (Accessories) -->
+                    <div class="product-card" 
+                         data-category="accessories"
+                         data-name="Brutalist Silver Ring"
+                         data-price="210"
+                         data-sizes="8,9,10,11,12"
+                         data-description="Solid 925 sterling silver ring with a deliberately rough, unpolished finish. A heavy, statement piece that ages beautifully with wear. Hand-cast in a small atelier in Tokyo."
+                         data-image="https://images.unsplash.com/photo-1628108428352-be2067643e2e?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1628108428352-be2067643e2e?q=80&w=800&auto=format&fit=crop" class="parallax-img w-full h-full object-cover" alt="Brutalist Silver Ring">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Brutalist Silver Ring</h2>
+                            <span class="font-mono text-sm text-gray-400">$210</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Accessories</p>
+                    </div>
+                    
+                </div>
+                
+                <!-- Pagination -->
+                <div class="mt-24 flex justify-center">
+                    <button class="border border-white/20 px-8 py-3 text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-300">
+                        Load More (12 Items)
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Simple Footer -->
+    <footer class="bg-[#050505] text-white pt-20 pb-6 border-t border-white/5 mt-10 z-40 relative">
+        <div class="max-w-[1600px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 uppercase tracking-[0.2em]">
+            <p>&copy; 2024 VELOUR & VOID.</p>
+        </div>
+    </footer>
+
+    <!-- PRODUCT DETAIL DRAWER (Modal) -->
+    <div id="product-drawer-overlay" class="fixed inset-0 bg-black/70 flex justify-end" onclick="closeProductDetail(event)">
+        
+        <div id="product-drawer" class="w-full md:w-[500px] lg:w-[600px] h-full bg-[#050505] shadow-2xl overflow-y-auto relative" onclick="event.stopPropagation()">
+            
+            <!-- Close Button -->
+            <button class="absolute top-6 right-6 text-2xl z-20 text-gray-400 hover:text-white transition-colors" onclick="closeProductDetail()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Product Image Section -->
+            <div id="drawer-image-container" class="aspect-[3/4] overflow-hidden">
+                <img id="drawer-image" src="" alt="Product Detail Image" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Product Details Section -->
+            <div class="p-6 md:p-10">
+                <div class="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
+                    <h2 id="drawer-name" class="text-3xl md:text-4xl font-bold brand-font tracking-tight"></h2>
+                    <span id="drawer-price" class="text-xl md:text-2xl font-mono text-gray-400"></span>
+                </div>
+                
+                <!-- Description -->
+                <p id="drawer-description" class="text-sm text-gray-300 leading-relaxed mb-8"></p>
+
+                <!-- Size Selector -->
+                <div class="mb-8">
+                    <h3 class="text-xs uppercase tracking-[0.2em] text-gray-500 mb-3 font-bold">Select Size</h3>
+                    <div id="drawer-sizes" class="flex flex-wrap gap-3">
+                        <!-- Size buttons will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button id="add-to-cart-btn" class="w-full py-4 bg-white text-black text-sm uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-gray-200 transition-colors duration-300">
+                    Add to Cart
+                </button>
+
+                <p class="text-center text-[10px] text-gray-500 uppercase tracking-widest mt-6">Free express shipping on all orders over $500.</p>
+            </div>
+
+        </div>
+    </div>
+
+
+    <script>
+        // --- GLOBAL FUNCTIONS ---
+        const drawerOverlay = document.getElementById('product-drawer-overlay');
+        const debugStatus = document.getElementById('debug-status');
+        const productGrid = document.getElementById('product-grid');
+        const filterList = document.getElementById('filter-list');
+        const allProductCards = document.querySelectorAll('.product-card');
+
+        // Function to close the detail view
+        window.closeProductDetail = function(event) {
+            // Check if the click event exists and if the target is NOT the drawer itself
+            if (event && event.target !== drawerOverlay) {
+                return; 
+            }
+            drawerOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Function to open the detail view (called directly by event handler)
+        function openProductDetail(productCard) {
+            const drawerName = document.getElementById('drawer-name');
+            const drawerPrice = document.getElementById('drawer-price');
+            const drawerDescription = document.getElementById('drawer-description');
+            const drawerSizes = document.getElementById('drawer-sizes');
+            const drawerImage = document.getElementById('drawer-image');
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+
+            // Get data from the card attributes
+            const name = productCard.getAttribute('data-name');
+            const price = productCard.getAttribute('data-price');
+            const description = productCard.getAttribute('data-description');
+            const sizesString = productCard.getAttribute('data-sizes');
+            const image = productCard.getAttribute('data-image');
+
+            // Populate the drawer
+            drawerName.textContent = name;
+            drawerPrice.textContent = `$${parseInt(price).toLocaleString()}`;
+            drawerDescription.textContent = description;
+            drawerImage.src = image;
+            drawerImage.alt = name;
+
+            // Handle sizes
+            const sizes = sizesString.split(',').map(s => s.trim());
+            drawerSizes.innerHTML = '';
+            sizes.forEach((size, index) => {
+                const button = document.createElement('button');
+                button.textContent = size;
+                button.className = 'size-button px-4 py-2 border border-white/20 text-xs uppercase tracking-widest hover:border-white transition-colors duration-200 rounded-sm';
+                button.setAttribute('data-size', size);
+
+                // Pre-select the first size by default
+                if (index === 0) {
+                    button.classList.add('selected');
+                }
+                
+                // Add size selection logic (listener attached here)
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent the drawer's click handler from firing
+                    document.querySelectorAll('.size-button').forEach(btn => btn.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                });
+
+                drawerSizes.appendChild(button);
+            });
+            
+            // Update Add to Cart Button Text
+            addToCartBtn.textContent = `Add to Cart - $${parseInt(price).toLocaleString()}`;
+
+            // Show the drawer and disable body scroll
+            drawerOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // --- FILTER DELEGATION LOGIC ---
+        function handleFilterClick(e) {
+            // Check if the clicked element (or its ancestor) is a filter button
+            const btn = e.target.closest('.filter-btn');
+            if (!btn) return;
+
+            e.preventDefault(); 
+            
+            // 1. Update Active State
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // 2. Filter Products
+            const filterValue = btn.getAttribute('data-filter');
+
+            allProductCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                
+                if (filterValue === 'all' || cardCategory === filterValue) {
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    // Use a timeout to fully hide after the transition
+                    setTimeout(() => {
+                        if (card.style.opacity === '0') {
+                             card.style.display = 'none';
+                        }
+                    }, 400); 
+                }
+            });
+        }
+        
+        // --- PRODUCT CARD DELEGATION LOGIC ---
+        function handleProductClick(e) {
+            // Find the closest ancestor that is a product card
+            const card = e.target.closest('.product-card');
+            
+            // If we found a product card, open the detail view for it
+            if (card) {
+                openProductDetail(card);
+            }
+        }
+        
+        // --- INITIALIZATION ---
+        function initApp() {
+            // Attach single event listeners to the main containers
+            filterList.addEventListener('click', handleFilterClick);
+            productGrid.addEventListener('click', handleProductClick);
+
+            // Add to Cart stub (inside the drawer)
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            addToCartBtn.addEventListener('click', () => {
+                const selectedSize = document.querySelector('#drawer-sizes .size-button.selected')?.getAttribute('data-size');
+                const productName = document.getElementById('drawer-name').textContent;
+                const drawerPriceText = document.getElementById('drawer-price').textContent;
+                
+                if (selectedSize) {
+                    const originalText = addToCartBtn.textContent;
+                    addToCartBtn.textContent = `Added ${selectedSize} of ${productName}!`;
+                    
+                    // Simple message box logic instead of alert()
+                    setTimeout(() => {
+                        addToCartBtn.textContent = originalText;
+                        closeProductDetail();
+                    }, 1000);
+                } else {
+                    addToCartBtn.textContent = "Please Select a Size";
+                    setTimeout(() => {
+                         // Fallback price text
+                         const priceMatch = drawerPriceText.match(/\d{1,3}(,\d{3})*(\.\d+)?/);
+                         const priceFormatted = priceMatch ? `$${priceMatch[0]}` : "Price";
+                        addToCartBtn.textContent = `Add to Cart - ${priceFormatted}`;
+                    }, 800);
+                }
+            });
+
+            // Final debug confirmation
+            debugStatus.classList.remove('bg-red-600/90');
+            debugStatus.classList.add('bg-green-600/90');
+            debugStatus.textContent = 'Status: Listeners Active';
+        }
+
+        // Initialize the app when the DOM is ready
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

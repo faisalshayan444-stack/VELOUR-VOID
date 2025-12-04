@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VELOUR & VOID | Collections</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --text-main: #ffffff;
+            --bg-main: #050505;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            
+        }
+
+        h1, h2, h3, h4, .brand-font {
+            font-family: 'Syne', sans-serif;
+        }
+
+        /* NOISE OVERLAY */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .glass-nav {
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        
+
+        /* PRODUCT CARD ANIMATIONS */
+        .product-card {
+            opacity: 0; 
+            transform: translateY(50px);
+        }
+        
+        .image-container {
+            overflow: hidden;
+        }
+        
+        .parallax-img {
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-card:hover .parallax-img {
+            transform: scale(1.08);
+        }
+
+        /* FILTER STYLES */
+        .filter-btn {
+            position: relative;
+            z-index: 2;
+        }
+        .filter-btn.active {
+            color: white;
+            opacity: 1;
+        }
+        .line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: white;
+            transform: scaleX(0);
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            transform-origin: left;
+        }
+        .filter-btn.active .line {
+            transform: scaleX(1);
+        }
+
+        /* DRAWER STYLES */
+        #product-drawer-overlay {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1000;
+        }
+        #product-drawer-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        #product-drawer {
+            transform: translateX(100%);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #product-drawer-overlay.active #product-drawer {
+            transform: translateX(0);
+        }
+        
+        /* SIZE BUTTONS */
+        .size-button {
+            transition: all 0.3s ease;
+        }
+        .size-button.selected {
+            background-color: white;
+            color: black;
+            border-color: white;
+        }
+.glass-nav {
+            background: rgba(5, 5, 5, 0.01);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* INTRO OVERLAY STYLES */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* Ensure it transitions out smoothly */
+            transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        
+        /* Fallback class to force hide */
+        #intro-overlay.hidden-force {
+            transform: translateY(-100%) !important;
+            pointer-events: none;
+        }
+
+        .intro-text {
+            position: absolute;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="intro-overlay">
+        <h1 id="intro-brand" class="intro-text text-4xl md:text-6xl font-bold brand-font tracking-tighter text-white">
+            VELOUR & VOID
+        </h1>
+        <h2 id="intro-products" class="intro-text text-xl md:text-2xl font-light tracking-[0.4em] text-white/80">
+            OUR COLLECTIONS
+        </h2>
+    </div>
+
+   
+    <div class="noise-overlay"></div>
+
+     <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 reveal-y" style="transition-delay: 0.2s;">
+                    <h1 class="text-3xl font-bold tracking-widest gradient-text">VELOUR & VOID</h1>
+                </div>
+
+                <div class="hidden md:flex space-x-8 reveal-y" style="transition-delay: 0.4s;">
+                    <a href="index.html" class="text-white/80 hover:text-white transition nav-underline">HOME</a>
+                    <a href="5.html" class="text-white/80 hover:text-white transition nav-underline">SHOP</a>
+                    <a href="products.html" class="text-white/80 hover:text-white transition nav-underline">Women</a>
+                    <a href="products.html" class="text-white/80 hover:text-white transition nav-underline">Accessories</a>
+                    <a href="products.html" class="text-red-400 hover:text-red-300 transition nav-underline">Sale</a>
+                </div>
+
+                <div class="flex items-center space-x-4 reveal-y" style="transition-delay: 0.6s;">
+                    <button class="p-2 hover:bg-white/10 rounded-full transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                    
+                    <button class="md:hidden p-2" onclick="toggleMobileMenu()">
+                        <svg id="menuIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden border-t border-white/10 bg-black/95">
+            <div class="px-4 py-4 space-y-3">
+                <a href="index.html" class="block text-white/80 hover:text-white">HOME</a>
+                <a href="5.html" class="block text-white/80 hover:text-white">SHOP</a>
+                <a href="products.html" class="block text-white/80 hover:text-white">Women</a>
+                <a href="products.html" class="block text-white/80 hover:text-white">Accessories</a>
+                <a href="products.html" class="block text-red-400 hover:text-red-300">Sale</a>
+            </div>
+        </div>
+    </nav>
+    
+    <header class="pt-40 pb-20 px-6 md:px-12 border-b border-white/10 relative z-10">
+        <div class="max-w-[1800px] mx-auto">
+            <h1 class="header-reveal text-6xl md:text-9xl font-bold brand-font tracking-tighter mb-4 overflow-hidden">
+                <span class="block translate-y-full">READY TO WEAR</span>
+            </h1>
+            <div class="flex justify-between items-end overflow-hidden">
+                <p class="header-reveal text-gray-400 text-xs md:text-sm uppercase tracking-[0.3em] max-w-md leading-relaxed translate-y-full block">
+                    Collection 04 — Defined by brutalist silhouettes and technical fabrics. Crafted in Paris.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative min-h-screen">
+        <div class="flex flex-col md:flex-row">
+            
+            <aside class="w-full md:w-64 lg:w-80 md:h-screen md:sticky md:top-0 pt-10 pb-6 px-6 md:px-12 border-b md:border-b-0 md:border-r border-white/10 z-20 bg-[#050505]">
+                <div class="sidebar-content opacity-0">
+                    <h3 class="text-xs uppercase tracking-[0.2em] text-gray-500 mb-8 font-bold">Category</h3>
+                    <ul class="space-y-4 text-sm font-light text-gray-400" id="filter-list">
+                        <li>
+                            <button class="filter-btn active w-full text-left uppercase tracking-widest hover:text-white transition-colors hoverable" data-filter="all">
+                                All Items
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn w-full text-left uppercase tracking-widest hover:text-white transition-colors hoverable" data-filter="outerwear">
+                                Outerwear
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn w-full text-left uppercase tracking-widest hover:text-white transition-colors hoverable" data-filter="tailoring">
+                                Tailoring
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn w-full text-left uppercase tracking-widest hover:text-white transition-colors hoverable" data-filter="accessories">
+                                Accessories
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="filter-btn w-full text-left uppercase tracking-widest hover:text-white transition-colors hoverable" data-filter="essentials">
+                                Essentials
+                                <span class="line"></span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <section class="flex-1 p-6 md:p-12 z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-16" id="product-grid">
+                    
+                    <div class="product-card group" data-category="tailoring" data-name="The Void Blazer" data-price="850" data-sizes="S,M,L,XL" data-description="Sharply tailored single-breasted blazer. Italian wool." data-image="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop" class="parallax-img" alt="The Void Blazer">
+                            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">The Void Blazer</h2>
+                            <span class="font-mono text-sm text-gray-400">$850</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Tailoring</p>
+                    </div>
+
+                    <div class="product-card group" data-category="outerwear" data-name="Structured Wool Coat" data-price="1200" data-sizes="S,M,L" data-description="Architectural overcoat. Heavy Italian wool blend." data-image="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=800&auto=format&fit=crop" class="parallax-img" alt="Structured Wool Coat">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Structured Wool Coat</h2>
+                            <span class="font-mono text-sm text-gray-400">$1,200</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Outerwear</p>
+                    </div>
+
+                    <div class="product-card group" data-category="accessories" data-name="Obsidian Boots" data-price="540" data-sizes="40,41,42,43,44,45" data-description="Hand-polished calfskin leather boots." data-image="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop" class="parallax-img" alt="Obsidian Boots">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Obsidian Boots</h2>
+                            <span class="font-mono text-sm text-gray-400">$540</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Accessories</p>
+                    </div>
+
+                    <div class="product-card group" data-category="essentials" data-name="Silk Noir Shirt" data-price="320" data-sizes="S,M,L,XL" data-description="Fluid, relaxed-fit shirt made from pure Italian silk." data-image="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=800&auto=format&fit=crop" class="parallax-img" alt="Silk Noir Shirt">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Silk Noir Shirt</h2>
+                            <span class="font-mono text-sm text-gray-400">$320</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Essentials</p>
+                    </div>
+
+                    <div class="product-card group" data-category="tailoring" data-name="Pleated Trousers" data-price="420" data-sizes="30,32,34,36" data-description="High-waisted, single-pleat trousers. Virgin wool." data-image="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop" class="parallax-img" alt="Pleated Trousers">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Pleated Trousers</h2>
+                            <span class="font-mono text-sm text-gray-400">$420</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Tailoring</p>
+                    </div>
+
+                    <div class="product-card group" data-category="accessories" data-name="Leather Crossbody" data-price="680" data-sizes="One Size" data-description="Compact utility bag. Grained Italian leather." data-image="https://images.unsplash.com/photo-1620799140408-ed5341cd2431?q=80&w=800&auto=format&fit=crop">
+                        <div class="image-container aspect-[3/4] bg-gray-900 mb-4 relative">
+                            <img src="https://images.unsplash.com/photo-1620799140408-ed5341cd2431?q=80&w=800&auto=format&fit=crop" class="parallax-img" alt="Leather Crossbody Bag">
+                        </div>
+                        <div class="flex justify-between items-baseline border-b border-white/10 pb-2">
+                            <h2 class="text-lg font-bold tracking-tight">Leather Crossbody</h2>
+                            <span class="font-mono text-sm text-gray-400">$680</span>
+                        </div>
+                        <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Accessories</p>
+                    </div>
+                </div>
+                
+                <div class="mt-24 flex justify-center">
+                    <button class="border border-white/20 px-8 py-3 text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-300 hoverable">
+                        Load More
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-[#050505] text-white pt-20 pb-6 border-t border-white/5 mt-10 z-40 relative">
+        <div class="max-w-[1600px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 uppercase tracking-[0.2em]">
+            <p>&copy; 2024 VELOUR & VOID.</p>
+        </div>
+    </footer>
+
+    <div id="product-drawer-overlay" class="fixed inset-0 bg-black/70 flex justify-end" onclick="closeProductDetail(event)">
+        <div id="product-drawer" class="w-full md:w-[500px] lg:w-[600px] h-full bg-[#050505] shadow-2xl overflow-y-auto relative border-l border-white/10" onclick="event.stopPropagation()">
+            
+            <button class="absolute top-6 right-6 text-2xl z-20 text-gray-400 hover:text-white transition-colors hoverable" onclick="closeProductDetail()">✕</button>
+
+            <div id="drawer-image-container" class="aspect-[3/4] overflow-hidden relative">
+                <img id="drawer-image" src="" alt="Product Detail Image" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent opacity-50"></div>
+            </div>
+
+            <div class="p-6 md:p-10 relative -mt-20">
+                <div class="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
+                    <h2 id="drawer-name" class="text-3xl md:text-4xl font-bold brand-font tracking-tight text-white"></h2>
+                    <span id="drawer-price" class="text-xl md:text-2xl font-mono text-gray-400"></span>
+                </div>
+                
+                <p id="drawer-description" class="text-sm text-gray-300 leading-relaxed mb-8 font-light"></p>
+
+                <div class="mb-8">
+                    <h3 class="text-xs uppercase tracking-[0.2em] text-gray-500 mb-3 font-bold">Select Size</h3>
+                    <div id="drawer-sizes" class="flex flex-wrap gap-3"></div>
+                </div>
+
+                <button id="add-to-cart-btn" class="w-full py-4 bg-white text-black text-sm uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-gray-200 transition-colors duration-300 hoverable">
+                    Add to Cart
+                </button>
+
+                <p class="text-center text-[10px] text-gray-500 uppercase tracking-widest mt-6">Free express shipping on all orders over $500.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- 1. INTRO ANIMATION (Replaces old loader) ---
+        function playIntro() {
+            // Check if GSAP loaded
+            if (typeof gsap === 'undefined') {
+                console.warn('GSAP not loaded. Hiding intro immediately.');
+                document.getElementById('intro-overlay').style.display = 'none';
+                return;
+            }
+
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    // Safety: Ensure overlay is completely gone from DOM flow
+                    const overlay = document.getElementById('intro-overlay');
+                    if (overlay) overlay.style.display = 'none';
+                }
+            });
+
+            // Sequence: Brand In -> Brand Out -> Products In -> Products Out -> Reveal
+            tl.to("#intro-brand", { y: 0, opacity: 1, duration: 1, ease: "power3.out" })
+              .to("#intro-brand", { y: -20, opacity: 0, duration: 0.8, ease: "power3.in", delay: 0.5 })
+              
+              .to("#intro-products", { y: 0, opacity: 1, duration: 1, ease: "power3.out" }, "-=0.2")
+              .to("#intro-products", { y: -20, opacity: 0, duration: 0.8, ease: "power3.in", delay: 0.5 })
+              
+              .to("#intro-overlay", { yPercent: -100, duration: 1.2, ease: "power4.inOut" })
+              
+              // Reveal Page Content
+              .to(".header-reveal span, .header-reveal", { y: 0, duration: 1.2, stagger: 0.1, ease: "power3.out" }, "-=0.8")
+              .to(".sidebar-content", { opacity: 1, duration: 1 }, "-=1")
+              
+              .add(() => {
+                  // Trigger Card Animations
+                  const cards = document.querySelectorAll('.product-card');
+                  ScrollTrigger.batch(cards, {
+                      onEnter: batch => gsap.to(batch, {
+                          opacity: 1,
+                          y: 0,
+                          stagger: 0.15,
+                          duration: 1,
+                          ease: "power3.out"
+                      }),
+                      start: "top 95%"
+                  });
+              }, "-=0.5");
+        }
+
+        // --- 2. START APP & SAFETY NET ---
+        window.addEventListener('load', () => {
+            // Play animation
+            try {
+                playIntro();
+            } catch (e) {
+                console.error("Intro animation error:", e);
+                document.getElementById('intro-overlay').style.display = 'none';
+            }
+            
+            // Initialize other components
+            updateCartUI();
+        });
+
+        // SAFETY FALLBACK: If screen is still black after 4 seconds, force remove it
+        setTimeout(() => {
+            const overlay = document.getElementById('intro-overlay');
+            if (overlay && overlay.style.display !== 'none') {
+                overlay.classList.add('hidden-force'); // Add CSS class to force hide
+                setTimeout(() => { overlay.style.display = 'none'; }, 500);
+            }
+        }, 4500);
+
+        // --- 3. INITIALIZATION & UTILS ---
+        let cart = JSON.parse(localStorage.getItem('velourVoidCart')) || [];
+        
+        function updateCartUI() {
+            const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+            const cartText = document.getElementById('nav-cart-count');
+            
+            if (typeof gsap !== 'undefined') {
+                gsap.fromTo(cartText, 
+                    { scale: 1.2, color: "#fff" }, 
+                    { scale: 1, color: "#9ca3af", duration: 0.3 }
+                );
+            }
+            
+            cartText.innerText = `Cart (${count})`;
+            localStorage.setItem('velourVoidCart', JSON.stringify(cart));
+        }
+
+        // Initialize Lenis Smooth Scroll
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            smooth: true,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+        
+        if (typeof gsap !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+        }
+        
+
+        // --- 5. DRAWER & CART LOGIC ---
+        const drawerOverlay = document.getElementById('product-drawer-overlay');
+        const drawerSizes = document.getElementById('drawer-sizes');
+        const addToCartBtn = document.getElementById('add-to-cart-btn');
+        let currentProductData = {};
+
+        window.closeProductDetail = function(event) {
+            if (event && event.target !== drawerOverlay && event.target.tagName !== 'BUTTON') return;
+            drawerOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function openProductDetail(card) {
+            const data = card.dataset;
+            currentProductData = {
+                name: data.name,
+                price: parseInt(data.price),
+                image: data.image
+            };
+
+            document.getElementById('drawer-name').textContent = data.name;
+            document.getElementById('drawer-price').textContent = `$${data.price}`;
+            document.getElementById('drawer-description').textContent = data.description;
+            document.getElementById('drawer-image').src = data.image;
+
+            drawerSizes.innerHTML = '';
+            const sizes = data.sizes.split(',');
+            sizes.forEach((size, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `size-button px-4 py-2 border border-white/20 text-xs uppercase hover:border-white ${idx === 0 ? 'selected' : ''}`;
+                btn.textContent = size;
+                btn.onclick = (e) => {
+                    document.querySelectorAll('.size-button').forEach(b => b.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                };
+                drawerSizes.appendChild(btn);
+            });
+
+            addToCartBtn.textContent = `Add to Cart - $${data.price}`;
+            addToCartBtn.classList.remove('bg-green-500', 'text-white');
+            addToCartBtn.classList.add('bg-white', 'text-black');
+
+            drawerOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        addToCartBtn.addEventListener('click', () => {
+            const selectedSizeBtn = document.querySelector('.size-button.selected');
+            if(!selectedSizeBtn) return;
+
+            const size = selectedSizeBtn.textContent;
+            
+            const existingItem = cart.find(item => item.name === currentProductData.name && item.size === size);
+            
+            if(existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({
+                    ...currentProductData,
+                    size: size,
+                    quantity: 1
+                });
+            }
+
+            updateCartUI();
+
+            const btn = addToCartBtn;
+            btn.textContent = "Added to Cart";
+            btn.classList.remove('bg-white', 'text-black');
+            btn.classList.add('bg-green-500', 'text-white');
+            
+            setTimeout(() => {
+                closeProductDetail();
+            }, 800);
+        });
+
+        document.getElementById('product-grid').addEventListener('click', (e) => {
+            const card = e.target.closest('.product-card');
+            if(card) openProductDetail(card);
+        });
+
+        document.getElementById('filter-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('.filter-btn');
+            if(!btn) return;
+
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const category = btn.dataset.filter;
+            const cards = document.querySelectorAll('.product-card');
+
+            cards.forEach(card => {
+                const match = category === 'all' || card.dataset.category === category;
+                
+                if(match) {
+                    card.style.display = 'block';
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(card, { opacity: 1, scale: 1, duration: 0.4 });
+                    } else {
+                        card.style.opacity = 1;
+                    }
+                } else {
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(card, { 
+                            opacity: 0, 
+                            scale: 0.95, 
+                            duration: 0.3, 
+                            onComplete: () => card.style.display = 'none' 
+                        });
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+            
+            if (typeof ScrollTrigger !== 'undefined') {
+                setTimeout(() => ScrollTrigger.refresh(), 400);
+            }
+        });
+ // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
